@@ -71,7 +71,7 @@ public class InventoryListener implements Listener {
         return coll == null ? phatLoot.lootList : coll.getLootList();
     }
 
-    /** LISTENERS **/
+    /* LISTENERS **/
 
     /**
      * Processes Players clicking within the PhatLoot GUI
@@ -143,7 +143,7 @@ public class InventoryListener implements Listener {
             }
         }
 
-        /** Switch Tools **/
+        /* Switch Tools **/
         if (slot == -999 || slot == TOOL_SLOT) {
             switch (event.getClick()) {
             case LEFT: //Previous Tool
@@ -163,7 +163,7 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        /** Go back to a previous View **/
+        /* Go back to a previous View **/
         if (stack.getType() == Material.LADDER) {
             ItemMeta details = stack.getItemMeta();
             if (details.hasDisplayName()) {
@@ -183,7 +183,7 @@ public class InventoryListener implements Listener {
             }
         }
 
-        /** Check if a Button was Clicked **/
+        /* Check if a Button was Clicked **/
         if (buttons.containsKey(slot)) {
             if (buttons.get(slot).onClick(event.getClick(), inv, phatLoot, lootList)) {
                 refreshPage(player, inv, lootList);
@@ -191,7 +191,7 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        /** No Loot was Clicked **/
+        /* No Loot was Clicked **/
         if (loot == null) {
             if (tool.getID() == NAVIGATE_AND_MOVE) {
                 switch (event.getClick()) {
@@ -272,7 +272,7 @@ public class InventoryListener implements Listener {
                     phatLoot.breakAndRespawn = !phatLoot.breakAndRespawn;
 
                     //Show the break and respawn status
-                    infoStack = new ItemStack(phatLoot.breakAndRespawn ? Material.MOB_SPAWNER : Material.CHEST);
+                    infoStack = new ItemStack(phatLoot.breakAndRespawn ? Material.SPAWNER : Material.CHEST);
                     info.setDisplayName("§4Break and Respawn: §6" + phatLoot.breakAndRespawn);
                     if (phatLoot.breakAndRespawn) {
                         details.add("§6This chest will break after it is looted");
@@ -288,9 +288,14 @@ public class InventoryListener implements Listener {
                         return;
                     }
                     phatLoot.autoLoot = !phatLoot.autoLoot;
-
                     //Show the autoloot status
-                    infoStack = new ItemStack(phatLoot.autoLoot ? Material.REDSTONE_TORCH_ON : Material.LEVER);
+                    //infoStack = new ItemStack(phatLoot.autoLoot ? Material.REDSTONE_TORCH_ON : Material.LEVER);
+                    if(phatLoot.autoLoot){
+                        infoStack = new ItemStack(Material.REDSTONE_TORCH);//TODO: on?
+                    }else{
+                        infoStack = new ItemStack(Material.LEVER);
+                    }
+
                     info.setDisplayName("§4AutoLoot: §6" + phatLoot.autoLoot);
                     break;
 
@@ -313,7 +318,7 @@ public class InventoryListener implements Listener {
                     }
 
                     //Show the Reset Time
-                    infoStack = new ItemStack(Material.WATCH);
+                    infoStack = new ItemStack(Material.CLOCK);
                     info.setDisplayName("§2Reset Time");
                     details.add("§4Days: §6" + phatLoot.days);
                     details.add("§4Hours: §6" + phatLoot.hours);
@@ -336,7 +341,7 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        /** Action determined based on the Tool **/
+        /* Action determined based on the Tool **/
         switch (tool.getID()) {
         case NAVIGATE_AND_MOVE:
             switch (event.getClick()) {
@@ -505,8 +510,8 @@ public class InventoryListener implements Listener {
         }
     }
 
-    /** END LISTENERS **/
-    /** INVENTORY VIEWS **/
+    /* END LISTENERS **/
+    /* INVENTORY VIEWS **/
 
     /**
      * Opens an Inventory GUI for the given PhatLoot to the given Player
@@ -533,7 +538,7 @@ public class InventoryListener implements Listener {
         ItemMeta info;
 
         //Display the Reset Time
-        infoStack = new ItemStack(Material.WATCH);
+        infoStack = new ItemStack(Material.CLOCK);
         info = Bukkit.getItemFactory().getItemMeta(infoStack.getType());
         info.setDisplayName("§2Reset Time");
         List<String> details = new ArrayList();
@@ -551,7 +556,12 @@ public class InventoryListener implements Listener {
         inv.setItem(index, infoStack);
 
         //Display the autoloot status
-        infoStack = new ItemStack(phatLoot.autoLoot ? Material.REDSTONE_TORCH_ON : Material.LEVER);
+        //infoStack = new ItemStack(phatLoot.autoLoot ? Material.REDSTONE_TORCH_ON : Material.LEVER);
+        if(phatLoot.autoLoot){
+            infoStack = new ItemStack(Material.REDSTONE_TORCH);//TODO: on?
+        }else{
+            infoStack = new ItemStack(Material.LEVER);
+        }
         info = Bukkit.getItemFactory().getItemMeta(infoStack.getType());
         info.setDisplayName("§4AutoLoot: §6" + phatLoot.autoLoot);
         infoStack.setItemMeta(info);
@@ -559,7 +569,12 @@ public class InventoryListener implements Listener {
         inv.setItem(index, infoStack);
 
         //Display the break and respawn status
-        infoStack = new ItemStack(phatLoot.breakAndRespawn ? Material.MOB_SPAWNER : Material.CHEST);
+        //infoStack = new ItemStack(phatLoot.breakAndRespawn ? Material.MOB_SPAWNER : Material.CHEST);
+        if(phatLoot.breakAndRespawn){
+            infoStack = new ItemStack(Material.SPAWNER);
+        }else{
+            infoStack = new ItemStack(Material.CHEST);
+        }
         info = Bukkit.getItemFactory().getItemMeta(infoStack.getType());
         info.setDisplayName("§4Break and Respawn: §6" + phatLoot.breakAndRespawn);
         details = new ArrayList();
@@ -709,5 +724,5 @@ public class InventoryListener implements Listener {
         player.updateInventory();
     }
 
-    /** END INVENTORY VIEWS **/
+    /* END INVENTORY VIEWS **/
 }

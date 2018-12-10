@@ -325,8 +325,14 @@ public class PhatLoots extends JavaPlugin {
             debug("Fishing loot has been turned off.");
         }
         if (getConfig().getBoolean("VotifierLoot")) {
-            logger.info("Listening for Votifier votes");
-            pm.registerEvents(new VoteListener(), this);
+            try{
+                Class.forName("com.vexsoftware.votifier.VoteHandler");
+                logger.info("Listening for Votifier votes");
+                pm.registerEvents(new VoteListener(), this);
+            }catch (ClassNotFoundException e){
+                logger.info("Listening for Votifier disabled as no class found..");
+            }
+
         } else if (isDebug()) {
             debug("Votifier loot has been turned off.");
         }

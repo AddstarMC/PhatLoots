@@ -136,7 +136,7 @@ public class CommandLoot extends Loot {
     @Override
     public ItemStack getInfoStack() {
         //A CommandLoot is represented by a Command Block
-        ItemStack infoStack = new ItemStack(Material.COMMAND);
+        ItemStack infoStack = new ItemStack(Material.COMMAND_BLOCK);
 
         //Set the display name of the item
         ItemMeta info = Bukkit.getItemFactory().getItemMeta(infoStack.getType());
@@ -204,7 +204,7 @@ public class CommandLoot extends Loot {
         }
         sb.append("command @ ");
         //Only display the decimal values if the probability is not a whole number
-        sb.append(String.valueOf(Math.floor(probability) == probability ? (int) probability : probability));
+        sb.append(Math.floor(probability) == probability ? (int) probability : probability);
         sb.append("%");
         if (delay > 0) {
             sb.append("executed ");

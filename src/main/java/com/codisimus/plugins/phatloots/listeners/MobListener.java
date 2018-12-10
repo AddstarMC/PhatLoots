@@ -6,7 +6,6 @@ import com.codisimus.plugins.phatloots.regions.RegionHook;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Location;
-import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.*;
 import org.bukkit.event.Listener;
 
@@ -25,7 +24,6 @@ public abstract class MobListener implements Listener {
     /**
      * Returns a cleaned up string representation of the given Entity's type
      *
-     * @param entity The given Entity
      * @return The name of the type of the Entity
      */
     abstract String getLootType();
@@ -69,24 +67,10 @@ public abstract class MobListener implements Listener {
         //Retrieve the more specific type of the mob if there is one
         //ex. Wither Skeleton as opposed to normal Skeleton
         //    or a Priest rather than a normal Villager
-        String type = (entity instanceof Player) ? "Player" : entity.getType().getName();
+        String type = (entity instanceof Player) ? "Player" : entity.getType().getEntityClass().getTypeName();
         String specificType = null;
         if (mobTypes) {
             switch (entity.getType()) {
-            case PIG_ZOMBIE:
-            case ZOMBIE: //'BabyVillager' | 'Baby' | 'Villager' | 'Normal'
-                Zombie zombie = (Zombie) entity;
-                if (zombie.isBaby()) {
-                    specificType = zombie.isVillager() ? "BabyVillager" : "Baby";
-                } else if (zombie.isVillager()) {
-                    specificType = "Villager";
-                } else {
-                    specificType = "Normal";
-                }
-                break;
-            case SKELETON: //'Wither' | 'Normal'
-                specificType = toCamelCase(((Skeleton) entity).getSkeletonType());
-                break;
             case VILLAGER: //Profession
                 specificType = toCamelCase(((Villager) entity).getProfession());
                 break;
@@ -96,10 +80,8 @@ public abstract class MobListener implements Listener {
                 break;
             case HORSE: //Color + Style (type is also determined by variant
                 Horse horse = (Horse) entity;
-                type = toCamelCase(horse.getVariant());
-                if (horse.getVariant() == Variant.HORSE) {
-                    specificType = toCamelCase(horse.getColor());
-                    switch (horse.getStyle()) {
+                specificType = toCamelCase(horse.getColor());
+                switch (horse.getStyle()) {
                     case WHITE_DOTS:
                         specificType += "Spotted";
                         break;
@@ -112,7 +94,6 @@ public abstract class MobListener implements Listener {
                     case WHITEFIELD:
                         specificType += "Milky";
                         break;
-                    }
                 }
                 break;
             case SHEEP: //Color
@@ -190,11 +171,11 @@ public abstract class MobListener implements Listener {
         }
         String s = type.name();
         String[] parts = s.split("_");
-        String camelCaseString = "";
+        StringBuilder camelCaseString = new StringBuilder();
         for (String part : parts){
-            camelCaseString = camelCaseString + toProperCase(part);
+            camelCaseString.append(toProperCase(part));
         }
-        return camelCaseString;
+        return camelCaseString.toString();
     }
 
     private static String toProperCase(String s) {

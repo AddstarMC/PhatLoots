@@ -3,22 +3,15 @@ package com.codisimus.plugins.phatloots.loot;
 import com.codisimus.plugins.phatloots.PhatLoot;
 import com.codisimus.plugins.phatloots.PhatLoots;
 import com.codisimus.plugins.phatloots.PhatLootsUtil;
-import com.codisimus.plugins.phatloots.gui.Button;
-import com.codisimus.plugins.phatloots.gui.InventoryListener;
 import com.codisimus.plugins.phatloots.gui.Tool;
 import java.util.*;
-import com.tealcube.minecraft.bukkit.mythicdrops.MythicDropsPlugin;
-import com.tealcube.minecraft.bukkit.mythicdrops.api.items.ItemGenerationReason;
-import com.tealcube.minecraft.bukkit.mythicdrops.api.tiers.Tier;
-import com.tealcube.minecraft.bukkit.mythicdrops.tiers.TierMap;
-import com.tealcube.minecraft.bukkit.mythicdrops.utils.ItemStackUtil;
-import com.tealcube.minecraft.bukkit.mythicdrops.utils.TierUtil;
-import net.elseland.xikage.MythicMobs.Items.MythicItem;
+import io.lumine.xikage.mythicmobs.MythicMobs;
+import io.lumine.xikage.mythicmobs.adapters.bukkit.BukkitAdapter;
+import io.lumine.xikage.mythicmobs.items.MythicItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -91,7 +84,14 @@ public class MythicMobsItem extends Loot {
     @Override
     public void getLoot(LootBundle lootBundle, double lootingBonus) {
         int amount = PhatLootsUtil.rollForInt(amountLower, amountUpper);
-        lootBundle.addItem(MythicItem.getMythicItem(itemId).generateItemStack(amount));
+        //lootBundle.addItem(MythicItem.getMythicItem(itemId).generateItemStack(amount));
+        MythicItem mi = MythicMobs.inst().getItemManager().getItem(itemId).get();
+        if(mi==null){
+            PhatLoots.logger.warning("Can't find " + itemId);
+            return;
+        }
+        ItemStack bukkitItemStack = BukkitAdapter.adapt(mi.generateItemStack(amount));
+        lootBundle.addItem(bukkitItemStack);
     }
 
     /**
@@ -102,7 +102,7 @@ public class MythicMobsItem extends Loot {
     @Override
     public ItemStack getInfoStack() {
         //A MythicDropsItem is represented by an Enchantment Table
-        ItemStack infoStack = new ItemStack(Material.ENCHANTMENT_TABLE);
+        ItemStack infoStack = new ItemStack(Material.ENCHANTING_TABLE);
 
         //Set the display name of the item
         ItemMeta info = Bukkit.getItemFactory().getItemMeta(infoStack.getType());

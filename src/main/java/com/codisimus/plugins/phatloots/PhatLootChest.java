@@ -6,11 +6,16 @@ import com.codisimus.plugins.phatloots.events.ChestRespawnEvent.RespawnReason;
 import java.util.*;
 import org.bukkit.*;
 import org.bukkit.block.*;
+import org.bukkit.block.data.AnaloguePowerable;
+import org.bukkit.block.data.type.Piston;
+import org.bukkit.block.data.type.RedstoneWire;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Diode;
+import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
@@ -19,17 +24,8 @@ import org.bukkit.scheduler.BukkitRunnable;
  * @author Codisimus
  */
 public class PhatLootChest {
-    private static EnumSet<Material> untriggeredRedstone = EnumSet.of(
-        Material.REDSTONE_WIRE, Material.REDSTONE_COMPARATOR_OFF,
-        Material.REDSTONE_LAMP_OFF, Material.REDSTONE_TORCH_OFF,
-        Material.DIODE_BLOCK_OFF, Material.DISPENSER, Material.DROPPER,
-        Material.NOTE_BLOCK, Material.PISTON_BASE, Material.TNT
-    );
-    private static EnumSet<Material> triggeredRedstone = EnumSet.of(
-        Material.REDSTONE_WIRE, Material.REDSTONE_COMPARATOR_ON,
-        Material.REDSTONE_LAMP_ON, Material.REDSTONE_TORCH_ON,
-        Material.DIODE_BLOCK_ON, Material.PISTON_BASE
-    );
+    private static Redstone redstone = new Redstone(true);
+
     private static HashMap<String, PhatLootChest> chests = new HashMap<>(); //Chest Location -> PhatLootChest
     static HashSet<PhatLootChest> chestsToRespawn = new HashSet<>();
     public static HashMap<UUID, PhatLootChest> openPhatLootChests = new HashMap<>(); //Player -> Open PhatLootChest
@@ -54,9 +50,9 @@ public class PhatLootChest {
         y = block.getY();
         z = block.getZ();
         switch (block.getType()) {
-        case DISPENSER:
-        case DROPPER:
-            isDispenser = true;
+            case DISPENSER:
+            case DROPPER:
+                isDispenser = true;
         }
     }
 
@@ -64,9 +60,9 @@ public class PhatLootChest {
      * Constructs a new PhatLootChest with the given Block Location data
      *
      * @param world The name of the World
-     * @param x The x-coordinate of the Block
-     * @param y The y-coordinate of the Block
-     * @param z The z-coordinate of the Block
+     * @param x     The x-coordinate of the Block
+     * @param y     The y-coordinate of the Block
+     * @param z     The z-coordinate of the Block
      */
     private PhatLootChest(String world, int x, int y, int z) {
         this.world = world;
@@ -80,9 +76,9 @@ public class PhatLootChest {
         } else {
             Block block = w.getBlockAt(x, y, z);
             switch (block.getType()) {
-            case DISPENSER:
-            case DROPPER:
-                isDispenser = true;
+                case DISPENSER:
+                case DROPPER:
+                    isDispenser = true;
             }
         }
     }
@@ -109,9 +105,9 @@ public class PhatLootChest {
      * Returns the PhatLootChest with the given Block Location data
      *
      * @param world The name of the World
-     * @param x The x-coordinate of the Block
-     * @param y The y-coordinate of the Block
-     * @param z The z-coordinate of the Block
+     * @param x     The x-coordinate of the Block
+     * @param y     The y-coordinate of the Block
+     * @param z     The z-coordinate of the Block
      * @return The found or created PhatLootChest
      */
     public static PhatLootChest getChest(String world, int x, int y, int z) {
@@ -221,7 +217,8 @@ public class PhatLootChest {
         //Only 'spawn' the new chest if it is not triggered to respawn
         if (state == null) {
             target.setType(block.getType());
-            target.setData(block.getData());
+            target.setBlockData(block.getBlockData());
+            //target.setData(block.getData());
         } else {
             state = target.getState();
         }
@@ -231,7 +228,7 @@ public class PhatLootChest {
      * Breaks the PhatLootChest and schedules it to respawn in the given amount of time
      *
      * @param lastLooter The last Player to loot the chest (used for ChestBreakEvent, may be null)
-     * @param time How long (in ticks) until the chest should respawn
+     * @param time       How long (in ticks) until the chest should respawn
      */
     public void breakChest(Player lastLooter, long time) {
         //Call the event to be modified
@@ -271,7 +268,7 @@ public class PhatLootChest {
         }
 
         if (soundOnBreak) {
-            block.getWorld().playSound(block.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_DOOR_WOOD, 1, 1);
+            block.getWorld().playSound(block.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1, 1);
         }
     }
 
@@ -340,8 +337,8 @@ public class PhatLootChest {
     /**
      * Creates an Inventory for the specified user
      *
-     * @param user 'global' or the Player's uuid
-     * @param name The title of the Inventory
+     * @param user  'global' or the Player's uuid
+     * @param name  The title of the Inventory
      * @param chest The PhatLootChest to create the Inventory for
      * @return The new Inventory that was created
      */
@@ -349,9 +346,12 @@ public class PhatLootChest {
         if (chest != null && chest.isDispenser) {
             BlockState state = chest.getBlock().getState();
             switch (state.getType()) {
-            case DISPENSER: return ((Dispenser) state).getInventory();
-            case DROPPER: return ((Dropper) state).getInventory();
-            default: chest.isDispenser = false;
+                case DISPENSER:
+                    return ((Dispenser) state).getInventory();
+                case DROPPER:
+                    return ((Dropper) state).getInventory();
+                default:
+                    chest.isDispenser = false;
             }
         }
 
@@ -372,13 +372,13 @@ public class PhatLootChest {
             if (chest != null) {
                 Block block = chest.getBlock();
                 switch (block.getType()) {
-                case TRAPPED_CHEST:
-                case CHEST:
-                    inventory = ((Chest) block.getState()).getInventory();
-                    break;
-                default:
-                    inventory = null;
-                    break;
+                    case TRAPPED_CHEST:
+                    case CHEST:
+                        inventory = ((Chest) block.getState()).getInventory();
+                        break;
+                    default:
+                        inventory = null;
+                        break;
                 }
             } else {
                 inventory = null;
@@ -397,8 +397,8 @@ public class PhatLootChest {
     /**
      * Adds the ItemStacks to the given Inventory
      *
-     * @param itemList The Collection of ItemStacks to add
-     * @param player The Player looting the Chest
+     * @param itemList  The Collection of ItemStacks to add
+     * @param player    The Player looting the Chest
      * @param inventory The Inventory to add the items to
      */
     public void addItems(Collection<ItemStack> itemList, Player player, Inventory inventory) {
@@ -415,8 +415,8 @@ public class PhatLootChest {
     /**
      * Adds the ItemStack to the given Inventory
      *
-     * @param item The ItemStack to add
-     * @param player The Player looting the Chest
+     * @param item      The ItemStack to add
+     * @param player    The Player looting the Chest
      * @param inventory The Inventory to add the item to
      */
     public void addItem(ItemStack item, Player player, Inventory inventory) {
@@ -443,23 +443,23 @@ public class PhatLootChest {
         if (isDispenser) {
             BlockState blockState = getBlock().getState();
             switch (blockState.getType()) {
-            case DISPENSER:
-                //Dispense until the Dispenser is empty
-                Dispenser dispenser = (Dispenser) blockState;
-                while (inventory.firstEmpty() > 0) {
-                    dispenser.dispense();
-                }
-                break;
-            case DROPPER:
-                //Drop until the Dropper is empty
-                Dropper dropper = (Dropper) blockState;
-                while (inventory.firstEmpty() > 0) {
-                    dropper.drop();
-                }
-                break;
-            default:
-                isDispenser = false;
-                break;
+                case DISPENSER:
+                    //Dispense until the Dispenser is empty
+                    Dispenser dispenser = (Dispenser) blockState;
+                    while (inventory.firstEmpty() > 0) {
+                        dispenser.dispense();
+                    }
+                    break;
+                case DROPPER:
+                    //Drop until the Dropper is empty
+                    Dropper dropper = (Dropper) blockState;
+                    while (inventory.firstEmpty() > 0) {
+                        dropper.drop();
+                    }
+                    break;
+                default:
+                    isDispenser = false;
+                    break;
             }
         }
     }
@@ -467,7 +467,7 @@ public class PhatLootChest {
     /**
      * Drops the given item outside the PhatLootChest
      *
-     * @param item The ItemStack that will be dropped
+     * @param item   The ItemStack that will be dropped
      * @param player The Player (if any) that will be informed of the drop
      */
     public void overFlow(ItemStack item, Player player) {
@@ -477,8 +477,8 @@ public class PhatLootChest {
             String msg = PhatLootsConfig.overflow.replace("<item>", PhatLootsUtil.getItemName(item));
             int amount = item.getAmount();
             msg = amount > 1
-                  ? msg.replace("<amount>", String.valueOf(item.getAmount()))
-                  : msg.replace("x<amount>", "").replace("<amount>", String.valueOf(item.getAmount()));
+                    ? msg.replace("<amount>", String.valueOf(item.getAmount()))
+                    : msg.replace("x<amount>", "").replace("<amount>", String.valueOf(item.getAmount()));
             player.sendMessage(msg);
         }
     }
@@ -488,7 +488,7 @@ public class PhatLootChest {
      * Plays animation/sound for opening a virtual Inventory
      *
      * @param player The Player opening the Inventory
-     * @param inv The virtual Inventory being opened
+     * @param inv    The virtual Inventory being opened
      * @param global Whether the animation should be sent to everyone (true) or just the Player (false)
      */
     public void openInventory(Player player, Inventory inv, boolean global) {
@@ -500,30 +500,31 @@ public class PhatLootChest {
         player.openInventory(inv);
 
         switch (getBlock().getType()) {
-        case TRAPPED_CHEST:
-            //Trigger redstone
-            for (Block block : findRedstone(getBlock(), false)) {
-                trigger(block);
-            }
-        case ENDER_CHEST:
-        case CHEST:
-            //Play chest animations
-            Location loc = new Location(Bukkit.getWorld(world), x, y, z);
-            if (global) {
-                if (inv.getViewers().size() <= 1) { //First viewer
-                    //Play for each Player in the World
-                    for (Player p: player.getWorld().getPlayers()) {
-                        p.playSound(loc, Sound.BLOCK_CHEST_OPEN, 0.75F, 0.95F);
-                        ChestAnimations.openChest(getBlock());
-                    }
+            case TRAPPED_CHEST:
+                //Trigger redstone
+                for (Block block : findRedstone(getBlock(), false)) {
+                    trigger(block);
                 }
-            } else {
-                //Play for only the individual Player
-                player.playSound(loc, Sound.BLOCK_CHEST_OPEN, 0.75F, 0.95F);
-                ChestAnimations.openChest(player, getBlock());
-            }
-            break;
-        default: break;
+            case ENDER_CHEST:
+            case CHEST:
+                //Play chest animations
+                Location loc = new Location(Bukkit.getWorld(world), x, y, z);
+                if (global) {
+                    if (inv.getViewers().size() <= 1) { //First viewer
+                        //Play for each Player in the World
+                        for (Player p : player.getWorld().getPlayers()) {
+                            p.playSound(loc, Sound.BLOCK_CHEST_OPEN, 0.75F, 0.95F);
+                            ChestAnimations.openChest(getBlock());
+                        }
+                    }
+                } else {
+                    //Play for only the individual Player
+                    player.playSound(loc, Sound.BLOCK_CHEST_OPEN, 0.75F, 0.95F);
+                    ChestAnimations.openChest(player, getBlock());
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -532,7 +533,7 @@ public class PhatLootChest {
      * Plays animation/sound for closing a virtual Inventory
      *
      * @param player The Player closing the Inventory
-     * @param inv The virtual Inventory being closed
+     * @param inv    The virtual Inventory being closed
      * @param global Whether the animation should be sent to everyone (true) or just the Player (false)
      */
     public void closeInventory(Player player, Inventory inv, boolean global) {
@@ -545,24 +546,24 @@ public class PhatLootChest {
         Block block = getBlock();
         Location loc = block.getLocation();
         switch (block.getType()) {
-        case TRAPPED_CHEST:
-            //Trigger redstone
-            for (Block neighbor : findRedstone(getBlock(), true)) {
-                trigger(neighbor);
-            }
-        case CHEST:
-        case ENDER_CHEST:
-            if (global) {
-                block.getWorld().playSound(loc, Sound.BLOCK_CHEST_CLOSE, 0.75F, 0.95F);
-                ChestAnimations.closeChest(getBlock());
-            } else {
-                //Play for only the individual Player
-                player.playSound(loc, Sound.BLOCK_CHEST_CLOSE, 0.75F, 0.95F);
-                ChestAnimations.closeChest(player, getBlock());
-            }
-            break;
-        default:
-            break;
+            case TRAPPED_CHEST:
+                //Trigger redstone
+                for (Block neighbor : findRedstone(getBlock(), true)) {
+                    trigger(neighbor);
+                }
+            case CHEST:
+            case ENDER_CHEST:
+                if (global) {
+                    block.getWorld().playSound(loc, Sound.BLOCK_CHEST_CLOSE, 0.75F, 0.95F);
+                    ChestAnimations.closeChest(getBlock());
+                } else {
+                    //Play for only the individual Player
+                    player.playSound(loc, Sound.BLOCK_CHEST_CLOSE, 0.75F, 0.95F);
+                    ChestAnimations.closeChest(player, getBlock());
+                }
+                break;
+            default:
+                break;
         }
 
         if (useBreakAndRepawn) {
@@ -617,94 +618,105 @@ public class PhatLootChest {
      * Finds Redstone Blocks that surround the given Block
      *
      * @param block The given Block which is most likely a Trapped Chest
-     * @param on Whether we want blocks that are currently powered
+     * @param on    Whether we want blocks that are currently powered
      * @return The List of Blocks
      */
     private static LinkedList<Block> findRedstone(Block block, boolean on) {
-        EnumSet redstone = on ? triggeredRedstone : untriggeredRedstone;
         LinkedList<Block> redstoneList = new LinkedList<>();
+        redstone.setOnlyPowered(on);
         Block neighbor = block.getRelative(1, 0, 0);
-        if (redstone.contains(neighbor.getType())) {
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
         } else {
             neighbor = block.getRelative(2, 0, 0);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
         neighbor = block.getRelative(0, 0, 1);
-        if (redstone.contains(neighbor.getType())) {
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
         } else {
             neighbor = block.getRelative(0, 0, 2);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
         neighbor = block.getRelative(-1, 0, 0);
-        if (redstone.contains(neighbor.getType())) {
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
         } else {
             neighbor = block.getRelative(-2, 0, 0);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
         neighbor = block.getRelative(0, 0, -1);
-        if (redstone.contains(neighbor.getType())) {
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
         } else {
             neighbor = block.getRelative(0, 0, -2);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
         neighbor = block.getRelative(0, -1, 0);
-        if (redstone.contains(neighbor.getType())) {
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
         } else {
             neighbor = block.getRelative(0, -2, 0);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
         neighbor = block.getRelative(1, -1, 0);
-        if (redstone.contains(neighbor.getType())) {
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
         } else {
             neighbor = block.getRelative(2, -1, 0);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
         neighbor = block.getRelative(0, -1, 1);
-        if (redstone.contains(neighbor.getType())) {
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
         } else {
             neighbor = block.getRelative(0, -1, 2);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
-        neighbor = block.getRelative(-1, -11, 0);
-        if (redstone.contains(neighbor.getType())) {
+        neighbor = block.getRelative(-1, -1, 0);
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
-        } else {
+        }else {
             neighbor = block.getRelative(-2, -1, 0);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
         neighbor = block.getRelative(0, -1, -1);
-        if (redstone.contains(neighbor.getType())) {
+        if (redstone.contains(neighbor)) {
             redstoneList.add(neighbor);
         } else {
             neighbor = block.getRelative(0, -1, -2);
-            if (redstone.contains(neighbor.getType())) {
+            if (redstone.contains(neighbor)) {
                 redstoneList.add(neighbor);
             }
         }
         return redstoneList;
+    }
+
+    private boolean isRedstoneOn(boolean on, Block block) {
+        if (on) {
+            MaterialData data = block.getState().getData();
+            if (data instanceof Diode) {
+                return ((Diode) data).isPowered();
+            }
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -713,52 +725,47 @@ public class PhatLootChest {
      * @param block The given Block which has redstone qualities
      */
     private static void trigger(Block block) {
-        switch (block.getType()) {
-        case REDSTONE_WIRE: //Toggle the power level
-            block.setData((byte) (block.getData() ^ (byte) 15), true);
-            break;
-        case REDSTONE_COMPARATOR_OFF: //Turn the Comparator on
-            block.setTypeId(Material.REDSTONE_COMPARATOR_ON.getId(), true);
-            break;
-        case REDSTONE_LAMP_OFF: //Turn the Lamp on
-            block.setTypeId(Material.REDSTONE_LAMP_ON.getId(), true);
-            break;
-        case REDSTONE_TORCH_OFF: //Turn the Torch on
-            block.setTypeId(Material.REDSTONE_TORCH_ON.getId(), true);
-            break;
-        case DIODE_BLOCK_OFF: //Turn the Diode on
-            block.setTypeId(Material.DIODE_BLOCK_ON.getId(), true);
-            break;
-        case DISPENSER: //Dispense
-            ((Dispenser) block.getState()).dispense();
-            break;
-        case DROPPER: //Drop
-            ((Dropper) block.getState()).drop();
-            break;
-        case NOTE_BLOCK: //Play note
-            ((NoteBlock) block.getState()).play();
-            break;
-        case PISTON_BASE: //Toggle the extended bit
-            block.setData((byte) (block.getData() ^ (byte) 8), true);
-            break;
-        case TNT: //Replace the TNT with primed TNT
-            block.setTypeId(0);
-            TNTPrimed tnt = (TNTPrimed) block.getWorld().spawnEntity(block.getLocation(), EntityType.PRIMED_TNT);
-            tnt.setFuseTicks(80);
-            break;
-        case REDSTONE_COMPARATOR_ON: //Turn the Comparator off
-            block.setTypeId(Material.REDSTONE_COMPARATOR_OFF.getId(), true);
-            break;
-        case REDSTONE_LAMP_ON: //Turn the Lamp off
-            block.setTypeId(Material.REDSTONE_LAMP_OFF.getId(), true);
-            break;
-        case REDSTONE_TORCH_ON: //Turn the Torch off
-            block.setTypeId(Material.REDSTONE_TORCH_OFF.getId(), true);
-            break;
-        case DIODE_BLOCK_ON: //Turn the Diode off
-            block.setTypeId(Material.DIODE_BLOCK_OFF.getId(), true);
-            break;
-        default: break;
+        if (block.getBlockData() instanceof AnaloguePowerable) {
+            AnaloguePowerable data = (AnaloguePowerable) block.getBlockData();
+            if (data instanceof RedstoneWire) {
+                if (data.getPower() > 0 && data.getPower() < data.getMaximumPower()) {
+                    data.setPower(data.getMaximumPower());
+                } else if (data.getPower() == data.getMaximumPower()) {
+                    data.setPower(0);
+                }
+            } else {
+                if (data.getPower() > 0) {
+                    data.setPower(0);
+                } else {
+                    data.setPower(data.getMaximumPower());
+                }
+                block.setBlockData(data);
+                return;
+            }
+            switch (block.getType()) {
+                case DISPENSER: //Dispense
+                    ((Dispenser) block.getState()).dispense();
+                    break;
+                case DROPPER: //Drop
+                    ((Dropper) block.getState()).drop();
+                    break;
+                case NOTE_BLOCK: //Play note
+                    ((NoteBlock) block.getState()).play();
+                    break;
+                case PISTON: //Toggle the extended bit
+                    //block.setData((byte) (block.getData() ^ (byte) 8), true);
+                    Piston piston = (Piston) block.getState().getBlockData();
+                    piston.setExtended(true);
+                    block.getState().setBlockData(piston); //TODO:
+                    break;
+                case TNT: //Replace the TNT with primed TNT
+                    block.setType(Material.AIR);
+                    TNTPrimed tnt = (TNTPrimed) block.getWorld().spawnEntity(block.getLocation(), EntityType.PRIMED_TNT);
+                    tnt.setFuseTicks(80);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -782,5 +789,39 @@ public class PhatLootChest {
     @Override
     public String toString() {
         return world + "'" + x + "'" + y + "'" + z;
+    }
+
+    private static class Redstone {
+
+        public void setOnlyPowered(boolean onlyPowered) {
+            this.onlyPowered = onlyPowered;
+        }
+
+        private boolean onlyPowered;
+
+        Redstone(boolean power) {
+            this.onlyPowered = power;
+        }
+
+        private EnumSet<Material> redstone = EnumSet.of(
+                Material.REDSTONE_WIRE, Material.COMPARATOR,
+                Material.REDSTONE_LAMP, Material.REDSTONE_TORCH,
+                Material.REPEATER, Material.DISPENSER, Material.DROPPER,
+                Material.NOTE_BLOCK, Material.PISTON, Material.TNT);
+
+        private boolean contains(Block testfor) {
+            if (onlyPowered) {
+                if (redstone.contains(testfor.getType())) {
+                    if (testfor.getState().getData() instanceof Diode) {
+                        return ((Diode) testfor.getState().getData()).isPowered();
+                    } else
+                        return false;
+                } else {
+                    return false;
+                }
+            } else {
+                return redstone.contains(testfor.getType());
+            }
+        }
     }
 }

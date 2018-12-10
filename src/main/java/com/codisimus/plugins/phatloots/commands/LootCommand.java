@@ -540,10 +540,10 @@ public class LootCommand {
         permission = "phatloots.list"
     )
     public boolean list(CommandSender sender) {
-        String list = "§5Current PhatLoots: §6";
+        StringBuilder list = new StringBuilder("§5Current PhatLoots: §6");
         //Concat each PhatLoot
         for (PhatLoot phatLoot : PhatLoots.getPhatLoots()) {
-            list += phatLoot.name + ", ";
+            list.append(phatLoot.name).append(", ");
         }
         sender.sendMessage(list.substring(0, list.length() - 2));
         return true;
@@ -584,10 +584,10 @@ public class LootCommand {
             gui(player, phatLoots.getFirst());
             break;
         default:
-            String list = "§5Linked PhatLoots: §6";
+            StringBuilder list = new StringBuilder("§5Linked PhatLoots: §6");
             //Concat each PhatLoot
             for (PhatLoot pl : phatLoots) {
-                list += pl.name + ", ";
+                list.append(pl.name).append(", ");
             }
             player.sendMessage(list.substring(0, list.length() - 2));
             break;

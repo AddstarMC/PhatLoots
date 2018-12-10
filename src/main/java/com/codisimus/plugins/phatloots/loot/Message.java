@@ -114,13 +114,12 @@ public class Message extends Loot {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(msg);
-        sb.append(" @ ");
         //Only display the decimal values if the probability is not a whole number
-        sb.append(String.valueOf(Math.floor(probability) == probability ? (int) probability : probability));
-        sb.append("%");
-        return sb.toString();
+        String sb = msg +
+                " @ " +
+                (Math.floor(probability) == probability ? (int) probability : probability) +
+                "%";
+        return sb;
     }
 
     @Override

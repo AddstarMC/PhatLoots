@@ -3,6 +3,7 @@ package com.codisimus.plugins.phatloots;
 import com.codisimus.plugins.phatloots.events.*;
 import com.codisimus.plugins.phatloots.loot.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -1081,7 +1082,7 @@ public final class PhatLoot implements ConfigurationSerializable {
         //Save the config with UTF-8 encoding
         File file = new File(PhatLoots.dataFolder, "LootTables" + File.separator + name + ".yml");
         String data = config.saveToString();
-        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             out.write(data, 0, data.length());
             out.flush();
         } catch (IOException ex) {

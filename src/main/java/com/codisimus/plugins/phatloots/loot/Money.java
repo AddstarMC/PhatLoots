@@ -182,7 +182,7 @@ public class Money extends Loot {
                   : PhatLoots.econ.currencyNamePlural());
         sb.append(" @ ");
         //Only display the decimal values if the probability is not a whole number
-        sb.append(String.valueOf(Math.floor(probability) == probability ? (int) probability : probability));
+        sb.append(Math.floor(probability) == probability ? (int) probability : probability);
         sb.append("%");
         return sb.toString();
     }
