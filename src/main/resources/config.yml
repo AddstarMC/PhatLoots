@@ -51,6 +51,9 @@ FishingLoot: true
 ##e.g. Vote
 VotifierLoot: false
 
+## Set to True for additional log messages
+Debug: false
+
 ##Only Block Materials that are listed below will be able to be linked
 ##Removing unused materials from this list will help reduce the use of uneeded resources
 Blocks:
