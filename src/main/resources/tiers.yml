@@ -65,98 +65,98 @@ BaseValues:
     OTHER: 0
 
 EnchantmentValues:
-    PROTECTION_ENVIRONMENTAL:
+    protection:
         1: 5
         2: 10
         3: 15
         4: 20
-    PROTECTION_FIRE:
+    fire_protection:
         1: 5
         2: 10
         3: 15
         4: 20
-    PROTECTION_EXPLOSIONS:
+    blast_protection:
         1: 5
         2: 10
         3: 15
         4: 20
-    PROTECTION_PROJECTILE:
+    projectile_protection:
         1: 5
         2: 10
         3: 15
         4: 20
-    THORNS:
+    thorns:
         1: 5
         2: 10
         3: 15
-    OXYGEN:
+    air:
         1: 5
         2: 10
         3: 15
-    WATER_WORKER:
+    aqua:
         1: 5
-    DURABILITY:
-        1: 5
-        2: 10
-        3: 15
-    DAMAGE_ALL:
+    unbreaking:
         1: 5
         2: 10
         3: 15
-        4: 20
-        5: 25
-    DAMAGE_UNDEAD:
+    sharpness:
         1: 5
         2: 10
         3: 15
         4: 20
         5: 25
-    DAMAGE_ARTHROPODS:
+    smite:
         1: 5
         2: 10
         3: 15
         4: 20
         5: 25
-    KNOCKBACK:
-        1: 5
-        2: 10
-    FIRE_ASPECT:
-        1: 5
-        2: 10
-    LOOT_BONUS_MOBS:
-        1: 5
-        2: 10
-        3: 15
-    LOOT_BONUS_BLOCKS:
-        1: 5
-        2: 10
-        3: 15
-    ARROW_DAMAGE:
+    bane_of_arthropods:
         1: 5
         2: 10
         3: 15
         4: 20
         5: 25
-    ARROW_KNOCKBACK:
+    knockback:
         1: 5
         2: 10
-    ARROW_FIRE:
+    fire_aspect:
         1: 5
-    ARROW_INFINITE:
+        2: 10
+    looting:
         1: 5
-    DIG_SPEED:
+        2: 10
+        3: 15
+    fortune:
+        1: 5
+        2: 10
+        3: 15
+    power:
         1: 5
         2: 10
         3: 15
         4: 20
         5: 25
-    SILK_TOUCH:
+    punch:
         1: 5
-    LUCK:
+        2: 10
+    flame:
+        1: 5
+    infinity:
+        1: 5
+    efficiency:
         1: 5
         2: 10
         3: 15
-    LURE:
+        4: 20
+        5: 25
+    silk_touch:
+        1: 5
+    luck_of_the_sea:
+        1: 5
+        2: 10
+        3: 15
+    lure:
         1: 5
         2: 10
         3: 15

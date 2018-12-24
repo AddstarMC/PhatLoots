@@ -1,150 +1,150 @@
 ARMOR:
-    PROTECTION_ENVIRONMENTAL:
+    protection:
         1: of the Ox
         2: of the Gorilla
         3: of the Rhino
         4: of the Elephant
-    PROTECTION_FIRE:
+    fire_protection:
         1: Fire Resistant
         2: Fire Resistant
         3: Fire Retardant
         4: Fire Proof
-    PROTECTION_EXPLOSIONS:
+    blast_protection:
         1: of the Crab
         2: of the Clam
         3: of the Shark
         4: of the Whale
-    PROTECTION_PROJECTILE:
+    projectile_protection:
         1: of the Snail
         2: of the Turtle
         3: of the Alligator
         4: of the Armadillo
-    THORNS:
+    thorns:
         1: Spiny
         2: Spiky
         3: Thorny
-    DURABILITY:
+    unbreaking:
         1: Sturdy
         2: Reinforced
         3: Fortified
 
 SWORD:
-    DAMAGE_ALL:
+    sharpness:
         0: Shortsword
         1: Broadsword
         3: Longsword
         4: Scimitar
         5: Claymore
-    DAMAGE_UNDEAD:
+    smite:
         1: Sprinkled with Holy Water
         2: Dipped in Holy Water
         3: Dripping with Holy Water
         4: Soaked with Holy Water
         5: Drenched with Holy Water
-    DAMAGE_ARTHROPODS:
+    bane_of_arthropods:
         0: Shortsword
         1: Spider Killer
         2: Spider Slayer
         3: Spider Vanquisher
         4: Spider Demolisher
         5: Spider Annihilator
-    KNOCKBACK:
+    knockback:
         1: with a Kick
         2: with a Punch
-    FIRE_ASPECT:
+    fire_aspect:
         1: Firey
         2: Blazing
-    LOOT_BONUS_MOBS:
+    looting:
         1: of the Bandit
         2: of the Thief
         3: of the Looter
-    DURABILITY:
+    unbreaking:
         1: Sturdy
         2: Reinforced
         3: Fortified
 
 AXE:
-    DAMAGE_ALL:
+    sharpness:
         0: Hatchet
         1: Hatchet
         3: Greataxe
         4: Choppa
         5: Waraxe
-    DAMAGE_UNDEAD:
+    smite:
         1: Sprinkled with Holy Water
         2: Dipped in Holy Water
         3: Dripping with Holy Water
         4: Soaked with Holy Water
         5: Drenched with Holy Water
-    DAMAGE_ARTHROPODS:
+    bane_of_arthropods:
         0: Hatchet
         1: Spider Killer
         2: Spider Slayer
         3: Spider Vanquisher
         4: Spider Demolisher
         5: Spider Annihilator
-    KNOCKBACK:
+    knockback:
         1: with a Kick
         2: with a Punch
-    FIRE_ASPECT:
+    fire_aspect:
         1: Firey
         2: Blazing
-    LOOT_BONUS_MOBS:
+    looting:
         1: of the Bandit
         2: of the Thief
         3: of the Looter
-    DURABILITY:
+    unbreaking:
         1: Sturdy
         2: Reinforced
         3: Fortified
 
 BOW:
-    ARROW_DAMAGE:
+    power:
         0: Shortbow
         3: Longbow
         4: Recurvebow
         5: Compoundbow
-    ARROW_KNOCKBACK:
+    punch:
         1: with a Kick
         2: with a Punch
-    ARROW_FIRE:
+    flame:
         1: Flaming
-    ARROW_INFINITE:
+    infinity:
         1: of the Magician
-    DURABILITY:
+    unbreaking:
         0: Oak
         1: Spruce
         2: Birch
         3: Ironwood
 
 PICKAXE:
-    DIG_SPEED:
+    efficiency:
         0: Piolet
         1: Pick
         2: Pickaxe
         3: Mattock
         4: Drill
         5: GigaDrill
-    DURABILITY:
+    unbreaking:
         1: Sturdy
         2: Reinforced
         3: Fortified
 
 SPADE:
-    DIG_SPEED:
+    efficiency:
         0: Spoon
         1: Trowel
         2: Shovel
         3: Spade
         4: Excavator
         5: Super Excavator
-    DURABILITY:
+    unbreaking:
         1: Sturdy
         2: Reinforced
         3: Fortified
 
 HOE:
-    DURABILITY:
+    unbreaking:
         1: Sturdy
         2: Reinforced
         3: Fortified
