@@ -337,7 +337,14 @@ public class Item extends Loot {
         ItemStack clone = item.clone();
         Material mat = clone.getType();
 
+        FileConfiguration pluginConfig = PhatLoots.plugin.getConfig();
+        Boolean debug = pluginConfig.getBoolean("Debug");
+
         if (autoEnchant) {
+            if (debug) {
+                PhatLoots.logger.info("DEBUG: Auto-enchanting item");
+            }
+
             //Select Enchantments based on the Material
             String type;
             Enchantment[] enchantments;
@@ -367,11 +374,21 @@ public class Item extends Loot {
                 enchantments = new Enchantment[0];
             }
 
+            int keyDebugMessages = 0;
+
             for (Enchantment enchantment : enchantments) {
                 String key = type + '.' + enchantment.getKey().getKey();
+
+                if (debug) {
+                    keyDebugMessages++;
+                    if (keyDebugMessages <= 3)
+                        PhatLoots.logger.info("DEBUG: looking for " + key + " in enchantments.yml");
+                }
+
                 if (enchantmentConfig.contains(key)) {
                     //Roll to discover which level the enchantment should be
                     ConfigurationSection config = enchantmentConfig.getConfigurationSection(key);
+
                     double totalPercent = 0.0D;
                     int level = 0;
                     double roll = roll();
@@ -384,6 +401,10 @@ public class Item extends Loot {
                     }
 
                     if (level > 0) {
+                        if (debug) {
+                            PhatLoots.logger.info("DEBUG: add enchantment " + enchantment.toString() + ", level " + level);
+                        }
+
                         clone.addUnsafeEnchantment(enchantment, level);
                     }
                 }
@@ -411,6 +432,9 @@ public class Item extends Loot {
                 File dir = new File(PhatLoots.dataFolder, "Item Descriptions" + File.separator + folder);
                 if (dir.exists()) {
                     //Choose a random file
+                    if (debug) {
+                        PhatLoots.logger.info("DEBUG: choosing a random lore file from " + dir.getPath());
+                    }
                     File[] files = dir.listFiles();
                     File file = files[PhatLootsUtil.rollForInt(files.length)];
 
@@ -434,24 +458,29 @@ public class Item extends Loot {
                                 }
                             }
                         } catch (Exception ex) {
-                            //Do nothing
+                            if (debug) {
+                                PhatLoots.logger.info("DEBUG: exception reading " + file.getPath() + ": " + ex.getMessage());
+                            }
                         }
                     } else {
                         PhatLoots.logger.severe("The Item Description " + file.getName() + " cannot be read");
                     }
                 } else {
                     PhatLoots.logger.severe("You are attempting to use an undocumented feature (Random Lore), please contact Codisimus if you actually want to know how to use this.");
+                    if (debug) {
+                        PhatLoots.logger.info(" ... directory not found " + dir.getPath());
+                    }
                 }
             } else {
                 nameBuilder.append(PhatLootsUtil.getItemName(clone));
             }
 
             if (generateName) {
-                generateName(clone, nameBuilder);
+                generateName(clone, nameBuilder, debug);
             }
 
             if (tieredName) {
-                getTieredName(clone, nameBuilder);
+                getTieredName(clone, nameBuilder, debug);
             }
 
             //Set the new display name of the item
@@ -634,35 +663,55 @@ public class Item extends Loot {
      * @param item The given ItemStack
      * @param nameBuilder The StringBuilder that will be changed to the new name
      */
-    private void generateName(ItemStack item, StringBuilder nameBuilder) {
+    private void generateName(ItemStack item, StringBuilder nameBuilder, Boolean debug) {
         Material mat = item.getType();
         Map enchantments = item.getEnchantments();
         String type;
         Enchantment enchantment;
         int level;
         String lore;
+
+        if (debug) {
+            PhatLoots.logger.info("DEBUG: Generating name for " + mat.name());
+        }
+
         //Check enchantments based on the Material
         if (ARMOR_MATERIAL_SET.contains(mat)) {
             type = ARMOR;
+
             enchantment = Enchantment.PROTECTION_FIRE;
             level = getLevel(enchantments, enchantment);
-            lore = loreConfig.getString(type + '.' + enchantment.getKey().getKey() + '.' + level);
+            String lorePathFire = type + '.' + enchantment.getKey().getKey() + '.' + level;
+            if (debug) {
+                PhatLoots.logger.info("DEBUG: Looking for lore " + lorePathFire + " in lores.yml");
+            }
+            lore = loreConfig.getString(lorePathFire);
             if (lore != null) {
                 nameBuilder.insert(0, ' ');
                 nameBuilder.insert(0, lore);
             }
+
             enchantment = enchantments.containsKey(Enchantment.THORNS)
                           ? Enchantment.THORNS
                           : Enchantment.DURABILITY;
             level = getLevel(enchantments, enchantment);
-            lore = loreConfig.getString(type + '.' + enchantment.getKey().getKey() + '.' + level);
+            String lorePathDurability = type + '.' + enchantment.getKey().getKey() + '.' + level;
+            if (debug) {
+                PhatLoots.logger.info("DEBUG: Looking for lore " + lorePathDurability + " in lores.yml");
+            }
+            lore = loreConfig.getString(lorePathDurability);
             if (lore != null) {
                 nameBuilder.insert(0, ' ');
                 nameBuilder.insert(0, lore);
             }
+
             enchantment = getTrump(enchantments, Enchantment.PROTECTION_ENVIRONMENTAL, Enchantment.PROTECTION_PROJECTILE, Enchantment.PROTECTION_EXPLOSIONS);
             level = getLevel(enchantments, enchantment);
-            lore = loreConfig.getString(type + '.' + enchantment.getKey().getKey() + '.' + level);
+            String lorePathProtection = type + '.' + enchantment.getKey().getKey() + '.' + level;
+            if (debug) {
+                PhatLoots.logger.info("DEBUG: Looking for lore " + lorePathProtection + " in lores.yml");
+            }
+            lore = loreConfig.getString(lorePathProtection);
             if (lore != null) {
                 nameBuilder.append(' ');
                 nameBuilder.append(lore);
@@ -671,29 +720,48 @@ public class Item extends Loot {
             type = SWORD;
             enchantment = getTrump(enchantments, Enchantment.DAMAGE_ARTHROPODS, Enchantment.DAMAGE_ALL);
             level = getLevel(enchantments, enchantment);
-            lore = loreConfig.getString(type + '.' + enchantment.getKey().getKey() + '.' + level);
+            String lorePathDamage = type + '.' + enchantment.getKey().getKey() + '.' + level;
+            if (debug) {
+                PhatLoots.logger.info("DEBUG: Looking for lore " + lorePathDamage + " in lores.yml");
+            }
+            lore = loreConfig.getString(lorePathDamage);
             if (lore != null) {
                 nameBuilder.replace(nameBuilder.length() - 5, nameBuilder.length(), lore);
             }
+
             enchantment = enchantments.containsKey(Enchantment.FIRE_ASPECT)
                           ? Enchantment.FIRE_ASPECT
                           : Enchantment.DURABILITY;
             level = getLevel(enchantments, enchantment);
-            lore = loreConfig.getString(type + '.' + enchantment.getKey().getKey() + '.' + level);
+            String lorePathDurability = type + '.' + enchantment.getKey().getKey() + '.' + level;
+            if (debug) {
+                PhatLoots.logger.info("DEBUG: Looking for lore " + lorePathDurability + " in lores.yml");
+            }
+            lore = loreConfig.getString(lorePathDurability);
             if (lore != null) {
                 nameBuilder.insert(0, ' ');
                 nameBuilder.insert(0, lore);
             }
+
             enchantment = Enchantment.LOOT_BONUS_MOBS;
             level = getLevel(enchantments, enchantment);
-            lore = loreConfig.getString(type + '.' + enchantment.getKey().getKey() + '.' + level);
+            String lorePathLooting = type + '.' + enchantment.getKey().getKey() + '.' + level;
+            if (debug) {
+                PhatLoots.logger.info("DEBUG: Looking for lore " + lorePathLooting + " in lores.yml");
+            }
+            lore = loreConfig.getString(lorePathLooting);
             if (lore != null) {
                 nameBuilder.append(' ');
                 nameBuilder.append(lore);
             }
+
             enchantment = getTrump(enchantments, Enchantment.KNOCKBACK, Enchantment.DAMAGE_UNDEAD);
             level = getLevel(enchantments, enchantment);
-            lore = loreConfig.getString(type + '.' + enchantment.getKey().getKey() + '.' + level);
+            String lorePathKnockback = type + '.' + enchantment.getKey().getKey() + '.' + level;
+            if (debug) {
+                PhatLoots.logger.info("DEBUG: Looking for lore " + lorePathKnockback + " in lores.yml");
+            }
+            lore = loreConfig.getString(lorePathKnockback);
             if (lore != null) {
                 nameBuilder.append(' ');
                 nameBuilder.append(lore);
@@ -808,17 +876,31 @@ public class Item extends Loot {
     }
 
     /**
-     * Modifys the name of the given item to add a tier based on its enchantments and material
+     * Modifies the name of the given item to add a tier based on its enchantments and material
+     * Will append text like (Common) or (Rare) or (Epic)
      *
      * @param item The given ItemStack
      * @param nameBuilder The StringBuilder that will be changed to the new name
+     * @param debug True if debug messages should be logged
      */
-    private void getTieredName(ItemStack item, StringBuilder nameBuilder) {
+    private void getTieredName(ItemStack item, StringBuilder nameBuilder, Boolean debug) {
+
+        if (debug) {
+            PhatLoots.logger.info("DEBUG: Obtaining tiered name");
+        }
+
         int tier = tiersConfig.getInt(BASE_VALUES + DIVIDER + item.getType().name());
 
         Map<Enchantment, Integer> enchantments = item.getEnchantments();
         for (Enchantment e : enchantments.keySet()) {
             tier += tiersConfig.getInt(ENCHANTMENT_VALUES + DIVIDER + e.getKey().getKey() + DIVIDER + enchantments.get(e));
+        }
+
+        if (debug) {
+            if (enchantments.size() == 1)
+                PhatLoots.logger.info("DEBUG: Item tier is " + tier + " based on 1 enchantment");
+            else
+                PhatLoots.logger.info("DEBUG: Item tier is " + tier + " based on " + enchantments.size() + " enchantments");
         }
 
         //Add the suffix and prefix for the given tier
@@ -837,6 +919,8 @@ public class Item extends Loot {
 
         if (tier > tierNotify) {
             PhatLoots.logger.info(nameBuilder.toString() + " [Tier " + tier + "] has been generated");
+        } else if (debug) {
+            PhatLoots.logger.info("DEBUG: " + nameBuilder.toString() + " [Tier " + tier + "] has been generated");
         }
     }
 

@@ -63,7 +63,6 @@ public class PhatLootsConfig {
             PhatLoots.logger.warning("Your config.yml file is outdated! To get the most out of this plugin please (re)move the old file so a new one can be generated.");
         }
 
-        
         debug = config.getBoolean("Debug");
 
         if (debug) {
