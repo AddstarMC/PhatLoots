@@ -69,9 +69,11 @@ public class PhatLootsConfig {
 
         /* LINKABLES */
 
-        for (String string : config.getStringList("Blocks")) {
-            Material mat = Material.matchMaterial(string);
-            if (mat != null) {
+        for (String blockName : config.getStringList("Blocks")) {
+            Material mat = Material.matchMaterial(blockName);
+            if (mat == null) {
+                PhatLoots.logger.warning("Invalid material below Blocks in config.yml: " + blockName);
+            } else {
                 PhatLoots.types.put(mat, null);
             }
         }
@@ -79,13 +81,15 @@ public class PhatLootsConfig {
         if (section != null) {
             for (String world : section.getKeys(false)) {
                 ConfigurationSection worldSection = section.getConfigurationSection(world);
-                for (String string : worldSection.getKeys(false)) {
-                    Material mat = Material.matchMaterial(string);
-                    if (mat != null) {
+                for (String blockName : worldSection.getKeys(false)) {
+                    Material mat = Material.matchMaterial(blockName);
+                    if (mat == null) {
+                        PhatLoots.logger.warning("Invalid material below Autolink in config.yml: " + blockName);
+                    } else {
                         if (PhatLoots.types.get(mat) == null) {
                             PhatLoots.types.put(mat, new HashMap());
                         }
-                        PhatLoots.types.get(mat).put(world, worldSection.getString(string));
+                        PhatLoots.types.get(mat).put(world, worldSection.getString(blockName));
                     }
                 }
             }
@@ -178,8 +182,8 @@ public class PhatLootsConfig {
 
         restrictAll = config.getBoolean("RestrictAll");
         restricted.addAll(config.getStringList("RestrictedPhatLoots"));
-        for (String string : restricted) {
-            string = ChatColor.translateAlternateColorCodes('&', string);
+        for (String lootName : restricted) {
+            lootName = ChatColor.translateAlternateColorCodes('&', lootName);
         }
         lootBagKey = ChatColor.translateAlternateColorCodes('&', config.getString("LootBagKey"));
         Item.tierNotify = config.getInt("MinimumTierNotification");
@@ -251,7 +255,7 @@ public class PhatLootsConfig {
      * @return The String or null if the string was not found or empty
      */
     private static String getString(ConfigurationSection config, String key) {
-        String string = ChatColor.translateAlternateColorCodes('&', config.getString(key));
-        return string.isEmpty() ? null : string;
+        String formattedKey = ChatColor.translateAlternateColorCodes('&', config.getString(key));
+        return formattedKey.isEmpty() ? null : formattedKey;
     }
 }
