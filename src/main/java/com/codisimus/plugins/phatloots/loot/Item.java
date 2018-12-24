@@ -156,6 +156,7 @@ public class Item extends Loot {
      */
     public Item(Map<String, Object> map) {
         String currentLine = null; //The value that is about to be loaded (used for debugging)
+
         try {
             Object number = map.get(currentLine = "Probability");
             probability = (number instanceof Double) ? (Double) number : (Integer) number;
@@ -183,7 +184,7 @@ public class Item extends Loot {
             }
         } catch (Exception ex) {
             //Print debug messages
-            PhatLoots.logger.severe("Failed to load Item line: " + currentLine);
+            PhatLoots.logger.severe("Failed to load Item line: " + currentLine + "; " + ex.getMessage());
             PhatLoots.logger.severe("of PhatLoot: " + (PhatLoot.current == null ? "unknown" : PhatLoot.current));
             PhatLoots.logger.severe("Last successfull load was...");
             PhatLoots.logger.severe("PhatLoot: " + (PhatLoot.last == null ? "unknown" : PhatLoot.last));

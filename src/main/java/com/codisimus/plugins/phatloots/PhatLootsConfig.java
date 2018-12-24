@@ -66,6 +66,9 @@ public class PhatLootsConfig {
         
         debug = config.getBoolean("Debug");
 
+        if (debug) {
+            PhatLoots.logger.info("DEBUG: Reading PhatLoots config");
+        }
 
         /* LINKABLES */
 
